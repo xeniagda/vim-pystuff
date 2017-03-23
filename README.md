@@ -12,8 +12,8 @@ Current tools:
 
 Running the outline on a sample program:
 
-![sample program][https://raw.githubusercontent.com/loovjo/vim-pystuff/master/Screenshots/Screenshot%201.png]
+![sample program](https://raw.githubusercontent.com/loovjo/vim-pystuff/master/Screenshots/Screenshot%201.png)
 
 On a real program:
 
-![real program][https://raw.githubusercontent.com/loovjo/vim-pystuff/master/Screenshots/Screenshot%202.png]
+![real program](https://raw.githubusercontent.com/loovjo/vim-pystuff/master/Screenshots/Screenshot%202.png)
