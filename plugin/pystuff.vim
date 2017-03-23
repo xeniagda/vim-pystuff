@@ -15,7 +15,7 @@ function! pystuff#pep_update(python_buf, outline_buf)
     " Switch to the outline buffer
     
     exec "sp|" . a:outline_buf . "b!"
-    setlocal modifiable modified noreadonly
+    setlocal modifiable noreadonly
 
     if !pystuff#command_exists("pep8")
         echoerr "pep8 is required. Install it by doing running  pip install pep8"
@@ -97,7 +97,7 @@ function! pystuff#bind(setup, update, bufname, id)
     end
 
     exec "augroup " . fnameescape(a:id . bufname(l:python_buffer))
-        autocmd BufWritePost <buffer> for i in range(len(b:updates)) | call b:updates[i](bufnr("%"), b:outline_bufs[i]) | endfor
+        autocmd BufWritePost <buffer> for i in range(len(b:updates)) | if bufwinnr(b:outline_bufs[i]) != -1 | call b:updates[i](bufnr("%"), b:outline_bufs[i]) | endi | endfor
     augroup END
 
     exec l:outline_buf . "b"
@@ -109,9 +109,8 @@ function! pystuff#bind(setup, update, bufname, id)
     set nowrap
     silent exec ":file " . fnameescape(a:bufname) . "#"
 
+    setlocal nomodifiable nomodified readonly
     call a:setup(l:python_buffer, l:outline_buf)
-
-    autocmd BufLeave <buffer> call pystuff#bind_remove(bufnr("%"), b:python_buffer)
 
 endfunction
 
@@ -120,8 +119,7 @@ function pystuff#bind_remove(bind_buf, python_buf)
     let l:idx = index(b:outline_bufs, a:bind_buf)
     call remove(b:outline_bufs, l:idx)
     call remove(b:updates, l:idx)
-    exec a:bind_buf . "bw!"
-    q
+    
 endfunction
 
 ""
