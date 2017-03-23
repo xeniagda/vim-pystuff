@@ -17,3 +17,7 @@ Running the outline on a sample program:
 On a real program:
 
 ![real program](https://raw.githubusercontent.com/loovjo/vim-pystuff/master/Screenshots/Screenshot%202.png)
+
+Here's the `pep` running on the same sample program:
+
+![pep](https://raw.githubusercontent.com/loovjo/vim-pystuff/master/Screenshots/Screenshot%203.png)
