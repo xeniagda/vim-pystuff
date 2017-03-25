@@ -1,0 +1,72 @@
+*pystuff* Plugin with some tools for Python programming
+
+Author: loovjo
+License: Same terms as Vim itself (see |license|)
+
+=============================================================================
+TOOLS                                                         *pystuff-tools*
+
+PEP                                                           *pystuff-pep*
+
+By doing `<leader>pp` pystuff will bring up a window to the right containing the
+output of the `pep`command. This will only work if the filetype of the current
+file is set to `python`.
+
+If you put the cursor on line and press `<C-J>`, the cursor will jump to the
+respective file on that place.
+
+There is no syntax highlighting in this mode
+
+OUTLINE                                                       *pystuff-outline*
+
+The outline is similar to the Pep (|pystuff-pep|), but instead of showing a
+Pep, it shows an outline of the file. To start the outline, do `<leader>pp`
+
+Say the file you are editing looks like this: >
+    def f(x):
+        a = 5
+        b = -2
+        k = x * 2
+        return a + b - k
+    y = f(3)
+<This file would have an outline that looks like this: >
+    2: def f(x)
+      3: * a
+      4: * b
+      5: * k
+    7: * y
+<As you can see, all variable declarations have an asteriks before them, and
+all variables in functions are indented appropriately. Classes and functions
+in functions also work: >
+    class Dummy:
+        def __init__(self, a, b, c):
+            self.a = a
+            self.val = b + c
+            self.var = b * c
+        def get_val(self):
+            return self.val
+        def set_val(self, var):
+            self.var = var
+        def add_one_to_var(self):
+            def add_one():
+                self.var += 1
+            return add_one
+<The outline would look like this: >
+    1: class Dummy
+      2: def __init__(self, a, b, c)
+          3: * self.a
+          4: * self.val
+          5: * self.var
+      6: def get_val(self)
+      8: def set_val(self, var)
+          9: * self.var
+      10: def add_one_to_var(self)
+          11: def add_one()
+<
+
+=============================================================================
+REPORTING BUGS                                                *pystuff-bugs*
+
+If you find a bug/problem with this plugin, you can go to the GitHub page for
+this project, and report it under issues:
+    https://github.com/loovjo/vim-pystuff

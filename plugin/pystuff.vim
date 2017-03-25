@@ -5,71 +5,12 @@ let g:pystuff#outline_file_name = "Outline of "
 
 let s:spath = expand("<sfile>:p:h")
 
+""
+" Checks if a given bash command exists
 function! pystuff#command_exists(command)
     silent exec "!hash " . a:command . " &2>/dev/null"
     return v:shell_error == 0
 endf
-
-function! pystuff#pep_update(python_buf, outline_buf)
-
-    " Switch to the outline buffer
-    
-    exec "sp|" . a:outline_buf . "b!"
-    setlocal modifiable noreadonly
-
-    if !pystuff#command_exists("pep8")
-        echoerr "pep8 is required. Install it by doing running  pip install pep8"
-        return
-    endif
-
-    %d
-    silent! exec ":r!pep8 " . bufname(a:python_buf)
-
-    normal ggdd
-
-    setlocal nomodifiable nomodified readonly
-    q!
-endf
-
-function! pystuff#pep_setup(python_buf, outline_buf)
-endfunction
-
-function! pystuff#Pep()
-     call pystuff#bind(function("pystuff#pep_setup"), function("pystuff#pep_update"), g:pystuff#pep_file_name, "pep")
-
-endfunction
-
-function! pystuff#outline_update(python_buf, outline_buf)
-    let g:pystuff#python_buf = a:python_buf
-    let g:pystuff#outline_buf = a:outline_buf
-
-    exec "py3file " . s:spath . "/Outline.py"
-
-endfunction
-
-function pystuff#jump(python_buffer)
-    let l:current_line = getline('.')
-    let l:number_start = match(l:current_line, "\\d", 0, 1)
-    let l:number_end = match(l:current_line, "\\d\\+\\zs", 0, 1) - 1
-    if number_start == -1
-        return
-    endif
-    let l:line_nr = str2nr(l:current_line[l:number_start : l:number_end])
-    echo l:line_nr
-
-    let l:win = win_findbuf(a:python_buffer)[0]
-
-    call win_gotoid(l:win)
-    exec l:line_nr
-    
-endfunction
-
-function pystuff#outline_setup(python_buf, outline_buf)
-
-    nnoremap <C-J> :call pystuff#jump(b:python_buffer)<cr>
-
-    set syntax=python
-endfunction
 
 ""
 " Makes a new window to the right, which is the bind to the current window.
@@ -132,7 +73,6 @@ function! pystuff#bind(setup, update, bufname, id)
 
     setlocal nomodifiable nomodified readonly
     call a:setup(l:python_buffer, l:outline_buf)
-
 endfunction
 
 function pystuff#bind_remove(bind_buf, python_buf)
@@ -142,6 +82,76 @@ function pystuff#bind_remove(bind_buf, python_buf)
     call remove(b:updates, l:idx)
     
 endfunction
+
+""
+" Updates the Pep.
+function! pystuff#pep_update(python_buf, outline_buf)
+
+    " Switch to the outline buffer
+    
+    exec "sp|" . a:outline_buf . "b!"
+    setlocal modifiable noreadonly
+
+    if !pystuff#command_exists("pep8")
+        echoerr "pep8 is required. Install it by doing running  pip install pep8"
+        return
+    endif
+
+    %d
+    silent! exec ":r!pep8 " . bufname(a:python_buf)
+
+    normal ggdd
+
+    setlocal nomodifiable nomodified readonly
+    q!
+endf
+
+function! pystuff#pep_setup(python_buf, outline_buf)
+    nnoremap <C-J> :call pystuff#jump_col(b:python_buffer)<cr>
+endfunction 
+
+function! pystuff#Pep()
+     call pystuff#bind(function("pystuff#pep_setup"), function("pystuff#pep_update"), g:pystuff#pep_file_name, "pep")
+endfunction
+
+" Just sets up buffer variables and runs the outline script
+function! pystuff#outline_update(python_buf, outline_buf)
+    let g:pystuff#python_buf = a:python_buf
+    let g:pystuff#outline_buf = a:outline_buf
+
+    exec "py3file " . s:spath . "/Outline.py"
+
+endfunction
+
+""
+" Same as pystuff#jump, but jumps the column specified by the number after a 
+" colon 
+function pystuff#jump_col(python_buffer)
+    let l:current_line = getline('.')
+    let l:line_number_start = match(l:current_line, "\\d\\+", 0, 1)
+    let l:line_number_end = match(l:current_line, "\\d\\+\\zs", 0, 1) - 1
+    let l:col_number_start = match(l:current_line, "\\d\\+:\\zs\\d\\+", 0, 1)
+    let l:col_number_end = match(l:current_line, "\\d\\+.:\\d\\+\\zs", 0, 1)
+    if line_number_start == -1
+        return
+    endif
+    let l:line_nr = str2nr(l:current_line[l:line_number_start : l:line_number_end])
+    let l:col_nr = str2nr(l:current_line[l:col_number_start : l:col_number_end])
+    echomsg l:col_number_start . ", " . l:col_number_end
+
+    let l:win = win_findbuf(a:python_buffer)[0]
+
+    call win_gotoid(l:win)
+    exec l:line_nr
+    exec "normal! " . l:col_nr . "|"
+    
+endfunction
+
+function pystuff#outline_setup(python_buf, outline_buf)
+
+    nnoremap <C-J> :call pystuff#jump(b:python_buffer)<cr>
+endfunction
+
 
 ""
 " Opens an outline for the current file.
