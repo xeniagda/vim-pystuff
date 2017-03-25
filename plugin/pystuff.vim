@@ -76,10 +76,30 @@ endfunction
 " At the start, setup and update are called, then every time you write the 
 " file, update is called.
 function! pystuff#bind(setup, update, bufname, id)
+
+    if &filetype != "python"
+        echo "Not a Python file!"
+        " Bell
+        normal \<esc>
+        return
+    endif
+
+    let l:window_name = expand("%")
+    if l:window_name == "" || &modified
+        echo "File not saved!"
+        " Bell
+        normal \<esc>
+        return
+    endif
+
+    " Remove all previous buffers with the same name
+    silent! exec ":bw! " . fnameescape(a:bufname) . l:window_name
+
     let l:python_buffer = bufnr("%")
     let l:python_win = winnr()
 
-    botright 40 vnew
+    40 vnew
+    wincmd r
     let l:outline_buf = bufnr("%")
 
     exec l:python_buffer . "b"
@@ -107,7 +127,8 @@ function! pystuff#bind(setup, update, bufname, id)
     call a:update(l:python_buffer, l:outline_buf)
 
     set nowrap
-    silent exec ":file " . fnameescape(a:bufname) . "#"
+
+    silent exec ":file " . fnameescape(a:bufname) . l:window_name
 
     setlocal nomodifiable nomodified readonly
     call a:setup(l:python_buffer, l:outline_buf)
