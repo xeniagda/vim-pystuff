@@ -75,7 +75,7 @@ function! pystuff#bind(setup, update, bufname, id)
     call a:setup(l:python_buffer, l:outline_buf)
 endfunction
 
-function pystuff#bind_remove(bind_buf, python_buf)
+function! pystuff#bind_remove(bind_buf, python_buf)
     exec "sp|" . a:python_buf . "b"
     let l:idx = index(b:outline_bufs, a:bind_buf)
     call remove(b:outline_bufs, l:idx)
@@ -124,32 +124,31 @@ function! pystuff#outline_update(python_buf, outline_buf)
 endfunction
 
 ""
-" Same as pystuff#jump, but jumps the column specified by the number after a 
+" Jumps to the column specified by the number after a 
 " colon 
-function pystuff#jump_col(python_buffer)
+function! pystuff#jump_col(python_buffer)
     let l:current_line = getline('.')
     let l:line_number_start = match(l:current_line, "\\d\\+", 0, 1)
     let l:line_number_end = match(l:current_line, "\\d\\+\\zs", 0, 1) - 1
     let l:col_number_start = match(l:current_line, "\\d\\+:\\zs\\d\\+", 0, 1)
     let l:col_number_end = match(l:current_line, "\\d\\+.:\\d\\+\\zs", 0, 1)
-    if line_number_start == -1
-        return
-    endif
     let l:line_nr = str2nr(l:current_line[l:line_number_start : l:line_number_end])
     let l:col_nr = str2nr(l:current_line[l:col_number_start : l:col_number_end])
-    echomsg l:col_number_start . ", " . l:col_number_end
 
     let l:win = win_findbuf(a:python_buffer)[0]
 
     call win_gotoid(l:win)
     exec l:line_nr
-    exec "normal! " . l:col_nr . "|"
+    if line_number_start == -1
+        return
+    endif
+    exec "normal! " . l:col_nr . "|^"
     
 endfunction
 
-function pystuff#outline_setup(python_buf, outline_buf)
+function! pystuff#outline_setup(python_buf, outline_buf)
 
-    nnoremap <C-J> :call pystuff#jump(b:python_buffer)<cr>
+    nnoremap <C-J> :call pystuff#jump_col(b:python_buffer)<cr>
 endfunction
 
 
